@@ -1,0 +1,3 @@
+[console_scripts]
+stix2_validator = stix2validator.scripts.stix2_validator:main
+
