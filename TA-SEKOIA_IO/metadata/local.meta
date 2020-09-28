@@ -39,3 +39,7 @@ modtime = 1589536099.395173000
 owner = georges
 version = 8.0.3
 modtime = 1589552219.994808000
+
+[app/install/install_source_checksum]
+version = 8.0.6
+modtime = 1599558165.863231000
