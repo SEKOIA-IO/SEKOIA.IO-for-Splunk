@@ -1,3 +1,0 @@
-[console_scripts]
-flatten_json = flatten_json:cli
-
