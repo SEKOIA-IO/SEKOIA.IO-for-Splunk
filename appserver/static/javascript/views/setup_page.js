@@ -176,16 +176,16 @@ define(
                     // Setup IOC cleanup
                     await Setup.setup_cleanup(splunk_js_sdk_service);
 
-                    // // Completes the setup, by access the app.conf's [install]
-                    // // stanza and then setting the `is_configured` to true
-                    // await Setup.complete_setup(splunk_js_sdk_service);
+                    // Completes the setup, by access the app.conf's [install]
+                    // stanza and then setting the `is_configured` to true
+                    await Setup.complete_setup(splunk_js_sdk_service);
 
-                    // // Reloads the splunk app so that splunk is aware of the
-                    // // updates made to the file system
-                    // await Setup.reload_splunk_app(splunk_js_sdk_service, APP_NAME);
+                    // Reloads the splunk app so that splunk is aware of the
+                    // updates made to the file system
+                    await Setup.reload_splunk_app(splunk_js_sdk_service, APP_NAME);
 
-                    // // Redirect to the Splunk App's home page
-                    // Setup.redirect_to_splunk_app_homepage(APP_NAME);
+                    // Redirect to the Splunk App's home page
+                    Setup.redirect_to_splunk_app_homepage(APP_NAME);
                 } catch (error) {
                     var error_messages_to_display = [];
                     if (
