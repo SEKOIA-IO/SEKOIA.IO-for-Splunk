@@ -1,0 +1,37 @@
+div.content {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+div.intro {
+    padding: 20px;
+}
+
+div.content label {
+    font-weight: bold;
+}
+
+div.content input {
+    display: block;
+    margin-top: 5px;
+    width: 100%;
+}
+
+p.hint {
+    font-style: italic;
+    font-size: 12px;
+}
+
+div.content input[type=submit] {
+    width: 200px;
+}
+
+div.content div.errors {
+    color: red;
+}
+
+div.content div.lookup {
+    border-bottom: 1px solid grey;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+}
