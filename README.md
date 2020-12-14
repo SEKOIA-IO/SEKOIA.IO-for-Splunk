@@ -29,4 +29,4 @@ For each lookup, a saved search is automatically created and scheduled to run on
 
 Sightings are stored in the `sekoia_alerts` KV-store and listed on the home Dashboard.
 
-Clicking on the `matched_ioc` will open the Intelligence Center to see context aroung matched indicator.
+Clicking on the `matched_ioc` will open the Intelligence Center to see context around matched indicator.
