@@ -1,6 +1,6 @@
 # SEKOIA.IO App for Splunk
 
-This application detects threats in your logs by looking for Indicators of Compromise produced by SEKOIA.IO.
+This application detects threats in your logs by looking for Indicators of Compromise produced by SEKOIA.IO. The packaged App can be downloaded from the Release section and installed from the file.
 
 ## Fetch IOC database
 
