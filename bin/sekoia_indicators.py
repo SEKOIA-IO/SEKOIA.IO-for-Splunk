@@ -29,6 +29,13 @@ SUPPORTED_TYPES = {
 }
 
 
+def from_rfc3339(date_string):
+    try:
+        return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ")
+    except ValueError:
+        return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
+
+
 class SEKOIAIndicators(Script):
     def __init__(self):
         self._splunk = None
@@ -169,22 +176,26 @@ class SEKOIAIndicators(Script):
             for obj in objects:
                 try:
                     self.get_kvstore(ioc_type).delete_by_id(obj["_key"])
-                # TODO: improve error handling here
                 except Exception:
                     pass
 
     # Store indicators in Splunk KV-Stores
     def store_indicators(self, indicators):
         objects = defaultdict(list)
+        now = datetime.utcnow()
 
         for indicator in indicators:
             kv_objects = self.indicator_to_kv(indicator)
 
             if indicator.get("revoked", False):
                 self.revoke_indicator(kv_objects)
-            else:
-                for ioc_type, dicts in six.iteritems(kv_objects):
-                    objects[ioc_type] += dicts
+            # Only import IOCs with a Valid Until date set
+            elif indicator.get("valid_until"):
+                # Ignore expired indicators
+                valid_until = from_rfc3339(indicator["valid_until"])
+                if valid_until > now:
+                    for ioc_type, dicts in six.iteritems(kv_objects):
+                        objects[ioc_type] += dicts
 
         for ioc_type, batch in six.iteritems(objects):
             self.get_kvstore(ioc_type).batch_save(*batch)
@@ -225,20 +236,22 @@ class SEKOIAIndicators(Script):
 
     # Method called by Splunk to get new events
     def stream_events(self, inputs, ew):
-        try:
-            self._splunk = client.connect(
-                token=self._input_definition.metadata["session_key"], owner="nobody"
-            )
+        while True:
+            try:
+                self._splunk = client.connect(
+                    token=self._input_definition.metadata["session_key"], owner="nobody"
+                )
 
-            for indicators in self.get_indicators(inputs):
-                self.store_indicators(indicators)
-        except Exception:
-            exception = traceback.format_exc()
+                for indicators in self.get_indicators(inputs):
+                    self.store_indicators(indicators)
+            except Exception:
+                exception = traceback.format_exc()
 
-            for line in exception.splitlines():
-                print("ERROR {}".format(line), file=sys.stderr)
-
-            raise
+                for line in exception.splitlines():
+                    print("ERROR {}".format(line), file=sys.stderr)
+            finally:
+                print("INFO Done fetching indicators, sleeping for 10 minutes.")
+                time.sleep(600)
 
 
 if __name__ == "__main__":
