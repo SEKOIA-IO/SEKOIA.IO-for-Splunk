@@ -4,5 +4,5 @@ __pycache__/
 *$py.class
 
 # Splunk local configuration files
-local/
-metadata/local.meta
+sekoia.io/local/
+sekoia.io/metadata/local.meta
