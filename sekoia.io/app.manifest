@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "2.0.0",
+  "info": {
+    "title": "SEKOIA.IO",
+    "id": {
+      "group": null,
+      "name": "sekoia.io",
+      "version": "1.0.0"
+    },
+    "author": [
+      {
+        "name": "support@sekoia.io",
+        "email": "support@sekoia.io",
+        "company": "SEKOIA"
+      }
+    ],
+    "releaseDate": null,
+    "description": "Search your logs with Indicators of Compromise (IoCs) from SEKOIA.IO.",
+    "classification": {
+      "intendedAudience": null,
+      "categories": [],
+      "developmentStatus": null
+    },
+    "commonInformationModels": null,
+    "license": {
+      "name": null,
+      "text": null,
+      "uri": null
+    },
+    "privacyPolicy": {
+      "name": null,
+      "text": null,
+      "uri": null
+    },
+    "releaseNotes": {
+      "name": null,
+      "text": null,
+      "uri": null
+    }
+  },
+  "dependencies": null,
+  "tasks": null,
+  "inputGroups": null,
+  "incompatibleApps": null,
+  "platformRequirements": null,
+  "supportedDeployments": [
+    "_standalone",
+    "_distributed"
+  ],
+  "targetWorkloads": null
+}
