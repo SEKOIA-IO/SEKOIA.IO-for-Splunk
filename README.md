@@ -2,6 +2,8 @@
 
 This application detects threats in your logs by looking for Indicators of Compromise produced by SEKOIA.IO. The packaged App can be downloaded from the Release section and installed from the file.
 
+![Splunkapp](./dashboard.png)
+
 ## Fetch IOC database
 
 When launching the application for the first time, you will have to fill the Application Setup Page with your SEKOIA.IO API Key.
