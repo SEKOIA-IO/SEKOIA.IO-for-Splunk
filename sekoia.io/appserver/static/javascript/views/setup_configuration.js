@@ -62,13 +62,8 @@ async function setup_lookups(
       search: `${lookups[index].query} | lookup sekoia_iocs_${lookups[index].type} _key as ${lookups[index].field} OUTPUTNEW _key as matched_ioc indicator_id as indicator_id | search matched_ioc=* | eval event=_raw, event_time=_time, sighting_hash=sha256(host.index.sourcetype.event), ioc_type="${lookups[index].type}" | fields event_time,matched_ioc,ioc_type,indicator_id,host,index,sourcetype,event,sighting_hash | outputlookup sekoia_alerts append=true key_field=sighting_hash`,
       "dispatch.earliest_time": "-65m@m",
       "dispatch.latest_time": "-5m@m",
-      "alert.digest_mode": false,
       "is_scheduled": 1,
       "cron_schedule": CRON_SCHEDULES[lookups[index].type],
-      // FIXME: these parameters do not seem supported by the REST API
-      // "counttype": "number of events",
-      // "relation": "greater than",
-      // "quantity": 0,
     }
 
     searches.create(lookup);
