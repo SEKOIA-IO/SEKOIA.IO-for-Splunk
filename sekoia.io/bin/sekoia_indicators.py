@@ -108,8 +108,14 @@ class SEKOIAIndicators(Script):
 
     # Convert a STIX 2.1 Indicator to Splunk key-value objects
     def indicator_to_kv(self, indicator):
-        parsed_pattern = Pattern(indicator["pattern"])
         results = defaultdict(list)
+        pattern_type = indicator.get("pattern_type")
+
+        if pattern_type is not None and pattern_type != "stix":
+            print("WARNING Unsupported pattern type '{}'".format(pattern_type), file=sys.stderr)
+            return results
+
+        parsed_pattern = Pattern(indicator["pattern"])
 
         for observable_type, comparisons in six.iteritems(parsed_pattern.inspect().comparisons):
             for path, operator, value in comparisons:
