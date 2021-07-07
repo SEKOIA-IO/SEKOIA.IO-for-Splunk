@@ -1,5 +1,5 @@
 function get_template() {
-    const template_string = `
+  const template_string = `
         <h1>SEKOIA.IO Application Setup</h1>
 
         <div class="content">
@@ -51,6 +51,14 @@ function get_template() {
                         (optional) If you want to only fetch specific indicators, you can specify a feed ID here.
                         You can find more information on feeds in the <a href="https://docs.sekoia.io/intelligence_center/api/#feeds" target="_blank">documentation</a>.
                     </p>
+
+                    <label>
+                        Proxy URL
+                        <input id="proxy_url" type="text" name="proxy_url" placeholder="http://[username:password@]host:port" />
+                    </label>
+                    <p class="hint">
+                        (optional) URL of the proxy server to use for HTTPS requests to SEKOIA.IO. The proxy URL can optionally contain an username and password if basic authentication is needed.
+                    </p>
                 </div>
 
                 <div class="lookups">
@@ -80,11 +88,11 @@ function get_template() {
         </div>
     `;
 
-    return template_string;
-  }
+  return template_string;
+}
 
-  function get_lookup_template(ioc_type) {
-      return `
+function get_lookup_template(ioc_type) {
+  return `
         <div class="lookup">
             <input type="hidden" name="type" value="${ioc_type}" />
 
@@ -108,9 +116,6 @@ function get_template() {
             <a class="remove_lookup" href="#">- Remove Lookup</a>
         </div>
       `;
-  }
+}
 
-  export {
-    get_template,
-    get_lookup_template
-  }
+export { get_template, get_lookup_template };

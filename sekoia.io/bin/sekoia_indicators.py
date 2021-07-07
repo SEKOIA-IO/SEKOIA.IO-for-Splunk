@@ -67,7 +67,16 @@ class SEKOIAIndicators(Script):
     def get_indicators(self, inputs):
         for input_name, input_item in six.iteritems(inputs.inputs):
             feed_id = input_item.get("feed_id", "") or DEFAULT_FEED
+            proxy_url = input_item.get("proxy_url")
             cursor = self.get_cursor(inputs, feed_id)
+
+            proxies = None
+
+            if proxy_url:
+                proxies = {
+                    "http": proxy_url,
+                    "https": proxy_url
+                }
 
             url = urljoin(
                 BASE_URL,
@@ -84,6 +93,7 @@ class SEKOIAIndicators(Script):
                 response = requests.get(
                     paginated_url,
                     headers={"Authorization": "Bearer {}".format(input_item["api_key"])},
+                    proxies=proxies
                 )
                 response.raise_for_status()
                 data = response.json()
