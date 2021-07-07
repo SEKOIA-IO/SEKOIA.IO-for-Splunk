@@ -1,0 +1,4 @@
+six
+requests
+splunk-sdk
+stix2-patterns

@@ -8,7 +8,12 @@ from datetime import datetime
 from collections import defaultdict
 from posixpath import join as urljoin
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+if sys.version_info[0] < 3:
+    py_version = "py2"
+else:
+    py_version = "py3"
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib", py_version))
 
 import six  # noqa: E402
 import requests  # noqa: E402
@@ -100,9 +105,7 @@ class SEKOIAIndicators(Script):
             for path, operator, value in comparisons:
                 if observable_type not in SUPPORTED_TYPES:
                     print(
-                        "WARNING Unsupported type '{}' in pattern '{}'".format(
-                            observable_type, indicator["pattern"]
-                        ),
+                        "WARNING Unsupported type '{}' in pattern '{}'".format(observable_type, indicator["pattern"]),
                         file=sys.stderr,
                     )
                     continue
@@ -112,27 +115,21 @@ class SEKOIAIndicators(Script):
                 except TypeError:
                     # This happends when the pattern contains '*', which is unsupported by the Splunk App
                     print(
-                        "WARNING Unsupported path '*' in pattern '{}'".format(
-                            indicator["pattern"]
-                        ),
+                        "WARNING Unsupported path '*' in pattern '{}'".format(indicator["pattern"]),
                         file=sys.stderr,
                     )
                     continue
 
                 if path not in SUPPORTED_TYPES[observable_type]:
                     print(
-                        "WARNING Unsupported path '{}' in pattern '{}'".format(
-                            path, indicator["pattern"]
-                        ),
+                        "WARNING Unsupported path '{}' in pattern '{}'".format(path, indicator["pattern"]),
                         file=sys.stderr,
                     )
                     continue
 
                 if operator != "=":
                     print(
-                        "WARNING Unsupported operator '{}' in pattern '{}'".format(
-                            operator, indicator["pattern"]
-                        ),
+                        "WARNING Unsupported operator '{}' in pattern '{}'".format(operator, indicator["pattern"]),
                         file=sys.stderr,
                     )
                     continue
@@ -145,11 +142,7 @@ class SEKOIAIndicators(Script):
 
                 if indicator.get("valid_until"):
                     result["valid_until"] = int(
-                        time.mktime(
-                            datetime.strptime(
-                                indicator["valid_until"][:19], "%Y-%m-%dT%H:%M:%S"
-                            ).timetuple()
-                        )
+                        time.mktime(datetime.strptime(indicator["valid_until"][:19], "%Y-%m-%dT%H:%M:%S").timetuple())
                     )
 
                 results[SUPPORTED_TYPES[observable_type][path]].append(result)
@@ -238,9 +231,7 @@ class SEKOIAIndicators(Script):
     def stream_events(self, inputs, ew):
         while True:
             try:
-                self._splunk = client.connect(
-                    token=self._input_definition.metadata["session_key"], owner="nobody"
-                )
+                self._splunk = client.connect(token=self._input_definition.metadata["session_key"], owner="nobody")
 
                 for indicators in self.get_indicators(inputs):
                     self.store_indicators(indicators)
