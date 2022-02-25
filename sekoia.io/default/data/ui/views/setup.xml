@@ -1,4 +1,4 @@
-<dashboard isDashboard="false" script="javascript/setup.js"  stylesheet="styles/setup.css">
+<dashboard isDashboard="false" script="javascript/setup.js"  stylesheet="styles/setup.css" version="1.1">
     <row>
         <panel>
             <html>
