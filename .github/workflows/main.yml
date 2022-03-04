@@ -34,16 +34,19 @@ jobs:
           pwd
           ls -la
           cd ${GITHUB_WORKSPACE}
+          wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.0.1.tar.gz
+          pip install splunk-packaging-toolkit-1.0.1.tar.gz
           mkdir dist
-          tar -zcvf dist/sekoia.io-current.spl sekoia.io
+          slim validate sekoia.io/
+          slim package sekoia.io/ -o dist
 
       - name: Upload package as an artifact
         uses: actions/upload-artifact@v2
         with:
           name: package-splunkbase
-          path: dist/sekoia.io-current.spl
+          path: dist/*.tar.gz
 
       - uses: splunk/appinspect-cli-action@v1
         with:
-          app_path: 'dist/sekoia.io-current.spl'
-          result_file: 'dist/sekoia.io-current-appinspect-report.json'        
+          app_path: 'dist/*.tar.gz'
+          result_file: 'dist/appinspect-report.json'
