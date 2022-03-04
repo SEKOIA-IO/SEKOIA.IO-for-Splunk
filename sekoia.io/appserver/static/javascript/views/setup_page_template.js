@@ -36,7 +36,7 @@ function get_template() {
                     <h2>Feed Setup</h2>
                     <label>
                         SEKOIA.IO API Key
-                        <input id="api_key" type="text" name="api_key" placeholder="API Key" required />
+                        <input id="api_key" type="password" name="api_key" placeholder="API Key" required />
                     </label>
                     <p class="hint">
                         API Key generated in SEKOIA.IO's User Center that should be used to access the feed content.

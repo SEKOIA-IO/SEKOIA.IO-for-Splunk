@@ -4,8 +4,8 @@ import os
 import sys
 import time
 import traceback
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
 from posixpath import join as urljoin
 
 if sys.version_info[0] < 3:
@@ -15,13 +15,14 @@ else:
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib", py_version))
 
-import six  # noqa: E402
 import requests  # noqa: E402
+import six  # noqa: E402
 import splunklib.client as client  # noqa: E402
+from splunklib.modularinput import Argument, Scheme, Script  # noqa: E402
 from stix2patterns.pattern import Pattern  # noqa: E402
-from splunklib.modularinput import Script, Scheme, Argument  # noqa: E402
 
-
+SEKOIAIO_REALM = "sekoiaio_realm"
+MASK = "<nothing to see here>"
 DEFAULT_FEED = "d6092c37-d8d7-45c3-8aff-c4dc26030608"
 BASE_URL = "https://api.sekoia.io/v2/inthreat/"
 LIMIT = 300
@@ -42,13 +43,16 @@ def from_rfc3339(date_string):
 
 
 class SEKOIAIndicators(Script):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(SEKOIAIndicators, self).__init__(*args, **kwargs)
         self._splunk = None
         self._kv_stores = {}
 
     # Get current feed cursor (splunk checkpoint)
     def get_cursor(self, inputs, feed_id):
-        cursor_path = os.path.join(inputs.metadata["checkpoint_dir"], "{}.cursor".format(feed_id))
+        cursor_path = os.path.join(
+            inputs.metadata["checkpoint_dir"], "{}.cursor".format(feed_id)
+        )
 
         if os.path.isfile(cursor_path):
             with open(cursor_path, "r") as f:
@@ -58,53 +62,111 @@ class SEKOIAIndicators(Script):
 
     # Store current feed cursor
     def store_cursor(self, inputs, feed_id, cursor):
-        cursor_path = os.path.join(inputs.metadata["checkpoint_dir"], "{}.cursor".format(feed_id))
+        cursor_path = os.path.join(
+            inputs.metadata["checkpoint_dir"], "{}.cursor".format(feed_id)
+        )
 
         with open(cursor_path, "w") as f:
             f.write(cursor)
 
-    # Fetch indicator batches from the Intelligence Center
-    def get_indicators(self, inputs):
-        for input_name, input_item in six.iteritems(inputs.inputs):
-            feed_id = input_item.get("feed_id", "") or DEFAULT_FEED
-            proxy_url = input_item.get("proxy_url")
-            cursor = self.get_cursor(inputs, feed_id)
+    def _store_api_key_in_secured_storage(self, feed_id, api_key, ew):
+        """
+        Stores the API keyi in the secured storage
+        """
 
-            proxies = None
+        # delete if it exists
+        for secret in self.service.storage_passwords:
 
-            if proxy_url:
-                proxies = {
-                    "http": proxy_url,
-                    "https": proxy_url
-                }
+            if secret.realm == SEKOIAIO_REALM and secret.username == feed_id:
+                secret.delete()
+                ew.log(ew.INFO, "Secret for the same feed has been deleted")
 
-            url = urljoin(
-                BASE_URL,
-                "collections",
-                feed_id,
-                "objects?match[type]=indicator&limit={}".format(LIMIT),
+        storage_password = self.service.storage_passwords.create(
+            api_key, feed_id, SEKOIAIO_REALM
+        )
+        ew.log(
+            ew.INFO,
+            f"API key succesffuly stored in the secured storage under {storage_password.name}",
+        )
+
+        return storage_password
+
+    def _get_api_key_from_secured_storage(self, feed_id):
+        """
+        Reads the secured storage for the API key
+        """
+        for secret in self.service.storage_passwords:
+
+            if secret.realm == SEKOIAIO_REALM and secret.username == feed_id:
+                return secret.clear_password
+
+        raise ValueError("No api-key found in secured storage for the feed")
+
+    def _mask_api_key(self, session_key, input_name, feed_id, ew):
+        """
+        Mask the api key in the input configuration
+        """
+        ew.log(ew.INFO, f"Masking api key for feed {feed_id} in input configuration")
+        kind, input_name_path = input_name.split("://")
+        item = self.service.inputs.__getitem__((input_name_path, kind))
+        kwargs = {"feed_id": feed_id, "api_key": MASK}
+        ew.log(ew.INFO, f"Retrieved the input to update: {item} - {kwargs}")
+
+        item.update(**kwargs).refresh()
+        ew.log(ew.INFO, "Input succesfully updated")
+
+    def get_indicators(self, feed_id, api_key, proxy_url=None, cursor=None, ew=None):
+        """
+        Fetch and yelds indicators from the configuration feed
+        """
+
+        if ew:
+            ew.log(
+                ew.INFO,
+                f"Fetch indicators from feed_id={feed_id}",
             )
-            paginated_url = url
 
-            while True:
-                if cursor:
-                    paginated_url = "{}&cursor={}".format(url, cursor)
+        proxies = None
 
-                response = requests.get(
-                    paginated_url,
-                    headers={"Authorization": "Bearer {}".format(input_item["api_key"])},
-                    proxies=proxies
+        if proxy_url:
+            proxies = {"http": proxy_url, "https": proxy_url}
+            if ew:
+                ew.log(
+                    ew.DEBUG, f"Configure network proxy access with proxy={proxy_url}"
                 )
-                response.raise_for_status()
-                data = response.json()
 
-                cursor = data["next_cursor"]
-                self.store_cursor(inputs, feed_id, cursor)
+        url = urljoin(
+            BASE_URL,
+            "collections",
+            feed_id,
+            "objects?match[type]=indicator&limit={}".format(LIMIT),
+        )
+        paginated_url = url
 
-                yield data["items"]
+        while True:
+            if cursor:
+                paginated_url = "{}&cursor={}".format(url, cursor)
 
-                if not data["items"] or len(data["items"]) < LIMIT:
-                    break
+            response = requests.get(
+                paginated_url,
+                headers={"Authorization": "Bearer {}".format(api_key)},
+                proxies=proxies,
+            )
+            if ew:
+                ew.log(
+                    ew.DEBUG,
+                    "API call on {url} returned an HTTP status-code={response.status_code}",
+                )
+
+            response.raise_for_status()
+            data = response.json()
+
+            cursor = data["next_cursor"]
+
+            yield (cursor, data["items"])
+
+            if not data["items"] or len(data["items"]) < LIMIT:
+                break
 
     # Convert a STIX 2.1 Indicator to Splunk key-value objects
     def indicator_to_kv(self, indicator):
@@ -112,16 +174,23 @@ class SEKOIAIndicators(Script):
         pattern_type = indicator.get("pattern_type")
 
         if pattern_type is not None and pattern_type != "stix":
-            print("WARNING Unsupported pattern type '{}'".format(pattern_type), file=sys.stderr)
+            print(
+                "WARNING Unsupported pattern type '{}'".format(pattern_type),
+                file=sys.stderr,
+            )
             return results
 
         parsed_pattern = Pattern(indicator["pattern"])
 
-        for observable_type, comparisons in six.iteritems(parsed_pattern.inspect().comparisons):
+        for observable_type, comparisons in six.iteritems(
+            parsed_pattern.inspect().comparisons
+        ):
             for path, operator, value in comparisons:
                 if observable_type not in SUPPORTED_TYPES:
                     print(
-                        "WARNING Unsupported type '{}' in pattern '{}'".format(observable_type, indicator["pattern"]),
+                        "WARNING Unsupported type '{}' in pattern '{}'".format(
+                            observable_type, indicator["pattern"]
+                        ),
                         file=sys.stderr,
                     )
                     continue
@@ -131,21 +200,27 @@ class SEKOIAIndicators(Script):
                 except TypeError:
                     # This happends when the pattern contains '*', which is unsupported by the Splunk App
                     print(
-                        "WARNING Unsupported path '*' in pattern '{}'".format(indicator["pattern"]),
+                        "WARNING Unsupported path '*' in pattern '{}'".format(
+                            indicator["pattern"]
+                        ),
                         file=sys.stderr,
                     )
                     continue
 
                 if path not in SUPPORTED_TYPES[observable_type]:
                     print(
-                        "WARNING Unsupported path '{}' in pattern '{}'".format(path, indicator["pattern"]),
+                        "WARNING Unsupported path '{}' in pattern '{}'".format(
+                            path, indicator["pattern"]
+                        ),
                         file=sys.stderr,
                     )
                     continue
 
                 if operator != "=":
                     print(
-                        "WARNING Unsupported operator '{}' in pattern '{}'".format(operator, indicator["pattern"]),
+                        "WARNING Unsupported operator '{}' in pattern '{}'".format(
+                            operator, indicator["pattern"]
+                        ),
                         file=sys.stderr,
                     )
                     continue
@@ -158,7 +233,11 @@ class SEKOIAIndicators(Script):
 
                 if indicator.get("valid_until"):
                     result["valid_until"] = int(
-                        time.mktime(datetime.strptime(indicator["valid_until"][:19], "%Y-%m-%dT%H:%M:%S").timetuple())
+                        time.mktime(
+                            datetime.strptime(
+                                indicator["valid_until"][:19], "%Y-%m-%dT%H:%M:%S"
+                            ).timetuple()
+                        )
                     )
 
                 results[SUPPORTED_TYPES[observable_type][path]].append(result)
@@ -188,8 +267,10 @@ class SEKOIAIndicators(Script):
                 except Exception:
                     pass
 
-    # Store indicators in Splunk KV-Stores
-    def store_indicators(self, indicators):
+    def store_indicators(self, indicators, ew):
+        """
+        Stores the indicators in the Splunk KV-Stores
+        """
         objects = defaultdict(list)
         now = datetime.utcnow()
 
@@ -208,7 +289,9 @@ class SEKOIAIndicators(Script):
 
         for ioc_type, batch in six.iteritems(objects):
             self.get_kvstore(ioc_type).batch_save(*batch)
-            print("INFO Saved KVStore Batch of {} IOCs of type {}".format(len(batch), ioc_type))
+            ew.log(
+                ew.INFO, f"Saved KVStore Batch of {len(batch)} IOCs of type {ioc_type}"
+            )
 
     # Describe the Modular Input and its arguments
     def get_scheme(self):
@@ -218,6 +301,7 @@ class SEKOIAIndicators(Script):
         scheme.use_external_validation = True
         scheme.use_single_instance = True
 
+        # api key
         api_key = Argument("api_key")
         api_key.title = "API Key"
         api_key.data_type = Argument.data_type_string
@@ -228,6 +312,7 @@ class SEKOIAIndicators(Script):
         api_key.required_on_create = True
         scheme.add_argument(api_key)
 
+        # feed id
         feed_id = Argument("feed_id")
         feed_id.title = "Feed ID"
         feed_id.data_type = Argument.data_type_string
@@ -236,29 +321,99 @@ class SEKOIAIndicators(Script):
         feed_id.required_on_edit = False
         scheme.add_argument(feed_id)
 
+        # proxy url
+        proxy_url = Argument("proxy_url")
+        proxy_url.title = "Proxy URL"
+        proxy_url.data_type = Argument.data_type_string
+        proxy_url.description = (
+            "(Optional) URL of the proxy server to use for HTTPS requests to SEKOIA.IO. "
+            "The proxy URL can optionally contain an username and password if basic authentication is needed."
+        )
+        proxy_url.required_on_create = False
+        proxy_url.required_on_edit = False
+        scheme.add_argument(proxy_url)
+
         return scheme
 
     # Validate the Modular Input's configuration
-    def validate_input(self, validation_definition):
-        # Validates input.
+    def validate_input(self, definition):
+        """
+        Triggers before creating the new input with the provided details
+        to check the configuration is valid.
+
+        It performs the following checks:
+        - checks it can connects to the feed to retrieve few indicators
+        """
+
+        try:
+            feed_id = definition.parameters["feed_id"] or DEFAULT_FEED
+            api_key = definition.parameters["api_key"]
+            if api_key == MASK:
+                return True
+
+            (cursor, indicators) = next(
+                self.get_indicators(
+                    feed_id=feed_id,
+                    api_key=api_key,
+                )
+            )
+        except requests.exceptions.HTTPError as http_error:
+            raise Exception(f"Failed to connect on SEKOIA.IO feed: {http_error}")
+
         return True
 
     # Method called by Splunk to get new events
     def stream_events(self, inputs, ew):
+
         while True:
+
+            self._splunk = client.connect(
+                token=self._input_definition.metadata["session_key"], owner="nobody"
+            )
+
+            ew.log(ew.INFO, "Getting new events with the SEKOIA.IO modular input")
+
+            session_key = self._input_definition.metadata["session_key"]
+            # trigger the encryption of the api key if not yet performed
+            for input_name, input_item in six.iteritems(inputs.inputs):
+                feed_id = input_item.get("feed_id", DEFAULT_FEED)
+                api_key = input_item["api_key"]
+                if api_key != MASK:
+                    self._store_api_key_in_secured_storage(feed_id, api_key, ew)
+                    self._mask_api_key(session_key, input_name, feed_id, ew)
+
             try:
-                self._splunk = client.connect(token=self._input_definition.metadata["session_key"], owner="nobody")
+                for input_name, input_item in six.iteritems(inputs.inputs):
+                    ew.log(ew.INFO, f"Fetch the indicators for input {input_name}")
+                    try:
+                        feed_id = input_item.get("feed_id", "") or DEFAULT_FEED
+                        proxy_url = input_item.get("proxy_url")
+                        api_key = self._get_api_key_from_secured_storage(
+                            feed_id=feed_id
+                        )
+                        cursor = self.get_cursor(inputs, feed_id)
 
-                for indicators in self.get_indicators(inputs):
-                    self.store_indicators(indicators)
-            except Exception:
-                exception = traceback.format_exc()
+                        for cursor, indicators in self.get_indicators(
+                            feed_id=feed_id,
+                            api_key=api_key,
+                            proxy_url=proxy_url,
+                            cursor=cursor,
+                            ew=ew,
+                        ):
+                            self.store_indicators(indicators, ew)
+                            self.store_cursor(inputs, feed_id, cursor)
 
-                for line in exception.splitlines():
-                    print("ERROR {}".format(line), file=sys.stderr)
+                    except Exception:
+                        exception = traceback.format_exc()
+
+                        for line in exception.splitlines():
+                            ew.log(ew.ERROR, line)
             finally:
-                print("INFO Done fetching indicators, sleeping for 10 minutes.")
-                time.sleep(600)
+                ew.log(
+                    ew.INFO,
+                    "Done fetching indicators of all the SEKOIA.IO inputs, sleeping for 10 minutes.",
+                )
+                time.sleep(10)
 
 
 if __name__ == "__main__":
