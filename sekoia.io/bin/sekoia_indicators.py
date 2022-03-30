@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib", py_versi
 
 import requests  # noqa: E402
 import six  # noqa: E402
+from splunklib.binding import HTTPError  # noqa: E402
 import splunklib.client as client  # noqa: E402
 from splunklib.modularinput import Argument, Scheme, Script  # noqa: E402
 from stix2patterns.pattern import Pattern  # noqa: E402
@@ -225,22 +226,28 @@ class SEKOIAIndicators(Script):
                     )
                     continue
 
-                result = {
-                    "_key": value.strip("'"),
-                    "indicator_id": indicator["id"],
-                    "valid_until": indicator.get("valid_until"),
-                }
+                # KV store that hosts the IOC leverage
+                # an accelerated field to support fast enrichment.
+                #
+                # Unfortunately, Splunk Accelerated Fields
+                # cannot be larger than 1024.
+                if len(value.strip("'")) <= 1024:
+                    result = {
+                        "_key": value.strip("'"),
+                        "indicator_id": indicator["id"],
+                        "valid_until": indicator.get("valid_until"),
+                    }
 
-                if indicator.get("valid_until"):
-                    result["valid_until"] = int(
-                        time.mktime(
-                            datetime.strptime(
-                                indicator["valid_until"][:19], "%Y-%m-%dT%H:%M:%S"
-                            ).timetuple()
+                    if indicator.get("valid_until"):
+                        result["valid_until"] = int(
+                            time.mktime(
+                                datetime.strptime(
+                                    indicator["valid_until"][:19], "%Y-%m-%dT%H:%M:%S"
+                                ).timetuple()
+                            )
                         )
-                    )
 
-                results[SUPPORTED_TYPES[observable_type][path]].append(result)
+                    results[SUPPORTED_TYPES[observable_type][path]].append(result)
 
         return results
 
@@ -288,7 +295,12 @@ class SEKOIAIndicators(Script):
                         objects[ioc_type] += dicts
 
         for ioc_type, batch in six.iteritems(objects):
-            self.get_kvstore(ioc_type).batch_save(*batch)
+            try:
+                self.get_kvstore(ioc_type).batch_save(*batch)
+            except HTTPError as http_error:
+                ew.log(ew.ERROR, "Failed to persist batch in kvstore")
+                ew.log(ew.ERROR, http_error)
+
             ew.log(
                 ew.INFO, f"Saved KVStore Batch of {len(batch)} IOCs of type {ioc_type}"
             )
