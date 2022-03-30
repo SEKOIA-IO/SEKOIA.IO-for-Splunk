@@ -1,6 +1,27 @@
 import * as SplunkHelpers from "./splunk_helpers.js";
 import { APP_NAME } from "./constants.js";
 
+function promisify(fn) {
+  // return a new promisified function
+  return (...args) => {
+    return new Promise((resolve, reject) => {
+      // create a callback that resolves and rejects
+      function callback(err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+
+      args.push(callback)
+
+      // pass the callback into the function
+      fn.call(this, ...args);
+    })
+  }
+}
+
 async function setup_modular_input(splunk_js_sdk_service, properties) {
     await SplunkHelpers.update_configuration_file(
         splunk_js_sdk_service,
@@ -136,11 +157,11 @@ async function complete_setup(splunk_js_sdk_service) {
 }
 
 async function reload_splunk_app(splunk_js_sdk_service, app_name) {
-    var splunk_js_sdk_apps = splunk_js_sdk_service.apps();
-    await splunk_js_sdk_apps.fetch();
+    const splunk_js_sdk_apps = splunk_js_sdk_service.apps();
+    await promisify(splunk_js_sdk_apps.fetch)();
 
-    var current_app = splunk_js_sdk_apps.item(app_name);
-    current_app.reload();
+    const current_app = splunk_js_sdk_apps.item(app_name);
+    await promisify(current_app.reload)();
 }
 
 function redirect_to_splunk_app_homepage(app_name) {
