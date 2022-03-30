@@ -31,7 +31,6 @@ define(["backbone", "jquery", "splunkjs/splunk"], function (Backbone, jquery, sp
 
             const input = this.current_settings["input"]["sekoia_indicators://feed"];
             if (input) {
-                console.log(input);
                 jquery("#api_key").val(input["api_key"]);
                 jquery("#feed_id").val(input["feed_id"]);
                 jquery("#proxy_url").val(input["proxy_url"]);
@@ -172,8 +171,6 @@ define(["backbone", "jquery", "splunkjs/splunk"], function (Backbone, jquery, sp
         // This is where the main setup process occurs
         perform_setup: async function perform_setup(splunk_js_sdk, settings) {
             try {
-
-                console.warn("Perform setup with settings = "+settings);
                 // Create the Splunk JS SDK Service object
                 const splunk_js_sdk_service = this.get_sdk_service(splunk_js_sdk);
 
