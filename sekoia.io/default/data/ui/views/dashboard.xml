@@ -1,4 +1,4 @@
-<dashboard>
+<dashboard version="1.1">
   <label>SEKOIA.IO Cyber Threat Intelligence</label>
   <search id="sekoia_iocs">
     <query>| inputlookup sekoia_iocs_domain | stats count | eval type="domain" | append [| inputlookup sekoia_iocs_url | stats count | eval type="url"] | append [| inputlookup sekoia_iocs_ipv4 | stats count | eval type="ipv4"] | append [| inputlookup sekoia_iocs_md5 | stats count | eval type="md5"] | append [| inputlookup sekoia_iocs_sha1 | stats count | eval type="sha1"] | append [| inputlookup sekoia_iocs_sha256 | stats count | eval type="sha256"]</query>

@@ -1,0 +1,60 @@
+name: Build Splunk App
+on:
+  push:
+    branches:
+      - "master"
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  pull_request:
+    branches:
+      - "master"
+
+
+jobs:
+
+  # Package App
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          # semantic-release won't trigger a tagged build if this is not set false
+          persist-credentials: false
+
+      # Our add-on contains Python code, so we need to install Python in the container
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Package Splunk App with CLI
+        run: |
+          pwd
+          ls -la
+          cd ${GITHUB_WORKSPACE}
+          wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.0.1.tar.gz
+          pip install splunk-packaging-toolkit-1.0.1.tar.gz
+          mkdir dist
+          slim validate sekoia.io/
+          slim package sekoia.io/ -o dist
+
+      - uses: splunk/appinspect-cli-action@v1
+        with:
+          app_path: 'dist/*.tar.gz'
+          result_file: 'dist/appinspect-report.json'
+          included_tags: cloud
+
+      - name: upload-appinspect-report
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: appinspect-report.json
+          path: dist/appinspect-report.json
+
+      - name: Upload package as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: package-splunkbase
+          path: dist/*.tar.gz
