@@ -17,15 +17,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib", py_versi
 
 import requests  # noqa: E402
 import six  # noqa: E402
-from splunklib.binding import HTTPError  # noqa: E402
 import splunklib.client as client  # noqa: E402
+from splunklib.binding import HTTPError  # noqa: E402
 from splunklib.modularinput import Argument, Scheme, Script  # noqa: E402
 from stix2patterns.pattern import Pattern  # noqa: E402
 
 SEKOIAIO_REALM = "sekoiaio_realm"
 MASK = "<nothing to see here>"
 DEFAULT_FEED = "d6092c37-d8d7-45c3-8aff-c4dc26030608"
-BASE_URL = "https://api.sekoia.io/v2/inthreat/"
+BASE_URL = "https://api.sekoia.io"
 LIMIT = 300
 COLLECTION_NAME = "sekoia_iocs_{}"
 SUPPORTED_TYPES = {
@@ -116,7 +116,9 @@ class SEKOIAIndicators(Script):
         item.update(**kwargs).refresh()
         ew.log(ew.INFO, "Input succesfully updated")
 
-    def get_indicators(self, feed_id, api_key, proxy_url=None, cursor=None, ew=None):
+    def get_indicators(
+        self, feed_id, api_key, api_root_url=None, proxy_url=None, cursor=None, ew=None
+    ):
         """
         Fetch and yelds indicators from the configuration feed
         """
@@ -124,7 +126,7 @@ class SEKOIAIndicators(Script):
         if ew:
             ew.log(
                 ew.INFO,
-                f"Fetch indicators from feed_id={feed_id}",
+                f"Fetch indicators from feed_id={feed_id} (api_root_url={api_root_url})",
             )
 
         proxies = None
@@ -136,9 +138,13 @@ class SEKOIAIndicators(Script):
                     ew.DEBUG, f"Configure network proxy access with proxy={proxy_url}"
                 )
 
+        url_root = BASE_URL
+        if api_root_url:
+            url_root = api_root_url
+
         url = urljoin(
-            BASE_URL,
-            "collections",
+            url_root+"/",
+            "v2/inthreat/collections",
             feed_id,
             "objects?match[type]=indicator&limit={}".format(LIMIT),
         )
@@ -170,7 +176,7 @@ class SEKOIAIndicators(Script):
                 break
 
     # Convert a STIX 2.1 Indicator to Splunk key-value objects
-    def indicator_to_kv(self, indicator):
+    def indicator_to_kv(self, indicator, api_root_url):
         results = defaultdict(list)
         pattern_type = indicator.get("pattern_type")
 
@@ -232,9 +238,20 @@ class SEKOIAIndicators(Script):
                 # Unfortunately, Splunk Accelerated Fields
                 # cannot be larger than 1024.
                 if len(value.strip("'")) <= 1024:
+
+                    if not api_root_url:
+                        server_root_url = "https://app.sekoia.io"
+                    else:
+                        server_root_url = api_root_url
+                        if server_root_url.endswith("/api"):
+                            server_root_url = server_root_url[:-4]
+                        elif server_root_url.endswith("/api/"):
+                            server_root_url = server_root_url[:-5]
+
                     result = {
                         "_key": value.strip("'"),
                         "indicator_id": indicator["id"],
+                        "server_root_url": server_root_url,
                         "valid_until": indicator.get("valid_until"),
                     }
 
@@ -274,7 +291,7 @@ class SEKOIAIndicators(Script):
                 except Exception:
                     pass
 
-    def store_indicators(self, indicators, ew):
+    def store_indicators(self, indicators, ew, api_root_url):
         """
         Stores the indicators in the Splunk KV-Stores
         """
@@ -282,7 +299,7 @@ class SEKOIAIndicators(Script):
         now = datetime.utcnow()
 
         for indicator in indicators:
-            kv_objects = self.indicator_to_kv(indicator)
+            kv_objects = self.indicator_to_kv(indicator, api_root_url)
 
             if indicator.get("revoked", False):
                 self.revoke_indicator(kv_objects)
@@ -333,6 +350,15 @@ class SEKOIAIndicators(Script):
         feed_id.required_on_edit = False
         scheme.add_argument(feed_id)
 
+        # api root url
+        api_root_url = Argument("api_root_url")
+        api_root_url.title = "SEKOIA.IO API URL"
+        api_root_url.data_type = Argument.data_type_string
+        api_root_url.description = "(optional) URL root of your SEKOIA.IO TIP API (e.g. https://api.sekoia.io or https://my.sekoiaio.tip.local/api)"
+        api_root_url.required_on_create = False
+        api_root_url.required_on_edit = False
+        scheme.add_argument(api_root_url)
+
         # proxy url
         proxy_url = Argument("proxy_url")
         proxy_url.title = "Proxy URL"
@@ -360,6 +386,8 @@ class SEKOIAIndicators(Script):
         try:
             feed_id = definition.parameters["feed_id"] or DEFAULT_FEED
             api_key = definition.parameters["api_key"]
+            api_root_url = definition.parameters.get("api_root_url")
+            proxy_url = definition.parameters.get("proxy_url")
             if api_key == MASK:
                 return True
 
@@ -367,6 +395,8 @@ class SEKOIAIndicators(Script):
                 self.get_indicators(
                     feed_id=feed_id,
                     api_key=api_key,
+                    api_root_url=api_root_url,
+                    proxy_url=proxy_url,
                 )
             )
         except requests.exceptions.HTTPError as http_error:
@@ -400,6 +430,7 @@ class SEKOIAIndicators(Script):
                     try:
                         feed_id = input_item.get("feed_id", "") or DEFAULT_FEED
                         proxy_url = input_item.get("proxy_url")
+                        api_root_url = input_item.get("api_root_url")
                         api_key = self._get_api_key_from_secured_storage(
                             feed_id=feed_id
                         )
@@ -408,11 +439,12 @@ class SEKOIAIndicators(Script):
                         for cursor, indicators in self.get_indicators(
                             feed_id=feed_id,
                             api_key=api_key,
+                            api_root_url=api_root_url,
                             proxy_url=proxy_url,
                             cursor=cursor,
                             ew=ew,
                         ):
-                            self.store_indicators(indicators, ew)
+                            self.store_indicators(indicators, ew, api_root_url)
                             self.store_cursor(inputs, feed_id, cursor)
 
                     except Exception:

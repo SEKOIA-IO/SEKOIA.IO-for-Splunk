@@ -34,6 +34,7 @@ define(["backbone", "jquery", "splunkjs/splunk"], function (Backbone, jquery, sp
                 jquery("#api_key").val(input["api_key"]);
                 jquery("#feed_id").val(input["feed_id"]);
                 jquery("#proxy_url").val(input["proxy_url"]);
+                jquery("#api_root_url").val(input["api_root_url"]);
             }
 
             Object.keys(this.current_settings["lookups"]).forEach((name) => {
@@ -134,15 +135,16 @@ define(["backbone", "jquery", "splunkjs/splunk"], function (Backbone, jquery, sp
             const feed_settings = {
                 api_key: "<nothing to see here>",
                 feed_id: feed_id,
-                proxy_url: values[2].value.trim(),
+                api_root_url: values[2].value.trim(),
+                proxy_url: values[3].value.trim(),
             };
 
             // Extract Lookups
             const lookups = new Array();
             var i = 0;
 
-            while (i * 3 + 3 < values.length) {
-                const offset = 3 + i * 3;
+            while (i * 3 + 4 < values.length) {
+                const offset = 4 + i * 3;
                 lookups.push({
                     type: values[offset].value.trim(),
                     query: values[offset + 1].value.trim(),

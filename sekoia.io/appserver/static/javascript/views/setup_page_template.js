@@ -53,6 +53,14 @@ function get_template() {
                     </p>
 
                     <label>
+                        SEKOIA.IO API URL
+                        <input id="api_root_url" type="text" name="api_root_url" placeholder="https://api.sekoia.io" />
+                    </label>
+                    <p class="hint">
+                        (optional) URL root of your SEKOIA.IO TIP API (e.g. https://api.sekoia.io or https://my.sekoiaio.tip.local/api)
+                    </p>
+
+                    <label>
                         Proxy URL
                         <input id="proxy_url" type="text" name="proxy_url" placeholder="http://[username:password@]host:port" />
                     </label>

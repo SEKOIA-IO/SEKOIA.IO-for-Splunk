@@ -106,7 +106,12 @@
         <option name="refresh.display">progressbar</option>
         <drilldown>
           <condition field="matched_ioc">
-            <link target="_blank">https://app.sekoia.io/inthreatv2/objects/$row.indicator_id$</link>
+	    <condition match="$row.server_root_url$ != &quot;&quot;">
+              <link target="_blank">$row.server_root_url$/inthreatv2/objects/$row.indicator_id$</link>
+	    </condition>
+	    <condition match="$row.server_root_url$ == &quot;&quot;">
+              <link target="_blank">https://app.sekoia.io/inthreatv2/objects/$row.indicator_id$</link>
+	    </condition>
           </condition>
         </drilldown>
       </table>
