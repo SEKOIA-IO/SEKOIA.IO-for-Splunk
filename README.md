@@ -32,3 +32,15 @@ For each lookup, a saved search is automatically created and scheduled to run on
 Sightings are stored in the `sekoia_alerts` KV-store and listed on the home Dashboard.
 
 Clicking on the `matched_ioc` will open the Intelligence Center to see context around matched indicator.
+
+## Proxy
+
+There are two solutions for using the SEKOIA.IO-for-Splunk app where proxy is mandatory for Internet access.
+
+- **You want only the SEKOIA.IO-for-Splunk app to be able to connect through the proxy.**
+Without any configuration on the system, the proxy configuration must be entered through the "Proxy URL" field within the SEKOIA.IO-for-Splunk app installation page. This field accepts a value such as `http://[username:password@]host:port.`
+
+- **You don't want to distinguish SEKOIA.IO-for-Splunk network configuration from the configuration of your Splunk instance.**
+The SEKOIA.IO-for-Splunk application takes into account the global Splunk proxy configuration provided by means of the `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
+
+Note that in both cases, the proxy must support access to https://api.sekoia.io on port 443 for this to work.
