@@ -126,7 +126,7 @@ define(["backbone", "jquery", "splunkjs/splunk"], function (Backbone, jquery, sp
             
             
             // Extract Feed Settings
-            feed_id = values[1].value.trim();
+            var feed_id = values[1].value.trim();
             if (feed_id == "") {
                 feed_id = "d6092c37-d8d7-45c3-8aff-c4dc26030608";
             }
