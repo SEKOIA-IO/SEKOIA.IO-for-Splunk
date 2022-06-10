@@ -457,7 +457,7 @@ class SEKOIAIndicators(Script):
                     ew.INFO,
                     "Done fetching indicators of all the SEKOIA.IO inputs, sleeping for 10 minutes.",
                 )
-                time.sleep(10)
+                time.sleep(600)
 
 
 if __name__ == "__main__":
