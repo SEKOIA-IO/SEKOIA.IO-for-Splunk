@@ -6,3 +6,9 @@ __pycache__/
 # Splunk local configuration files
 sekoia.io/local/
 sekoia.io/metadata/local.meta
+
+.venv
+.venv-3.11
+.venv-3.10
+dist
+.idea

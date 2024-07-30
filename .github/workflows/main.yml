@@ -27,7 +27,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.11
 
       - name: Package Splunk App with CLI
         run: |
@@ -37,8 +37,8 @@ jobs:
           wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.0.1.tar.gz
           pip install splunk-packaging-toolkit-1.0.1.tar.gz
           mkdir dist
-          slim validate sekoia.io/
-          slim package sekoia.io/ -o dist
+          python slim3.py validate sekoia.io/
+          python slim3.py package sekoia.io/ -o dist
 
       - uses: splunk/appinspect-cli-action@v1
         with:
