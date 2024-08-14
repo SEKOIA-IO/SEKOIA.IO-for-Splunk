@@ -248,8 +248,9 @@ class SEKOIAIndicators(Script):
                         elif server_root_url.endswith("/api/"):
                             server_root_url = server_root_url[:-5]
 
+                    # Applying _key to lowercase to avoid case sensitivity
                     result = {
-                        "_key": value.strip("'"),
+                        "_key": value.strip("'").lower(),
                         "indicator_id": indicator["id"],
                         "server_root_url": server_root_url,
                         "valid_until": indicator.get("valid_until"),
