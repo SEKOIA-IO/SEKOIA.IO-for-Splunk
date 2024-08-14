@@ -1,18 +1,18 @@
 # Required by pipeline
 check_for_builtin_functions:
-  comment: ''
+  comment: 'Checking for built-in functions'
 
 check_for_generic_operating_system_services:
-  comment: ''
+  comment: 'Checking for generic operating system services'
 
 check_for_plain_text_credentials_in_python:
-  comment: ''
+  comment: 'Checking for plain text credentials in Python'
 
 check_for_insecure_http_calls_in_python:
-  comment: ''
+  comment: 'Checking for insecure HTTP calls in Python'
 
 check_for_secret_disclosure:
   comment: ''
 
 check_for_executable_flag:
-  comment: ''
+  comment: 'Checking for executable flag'
