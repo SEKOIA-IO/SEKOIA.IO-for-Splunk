@@ -12,7 +12,7 @@ check_for_insecure_http_calls_in_python:
   comment: 'Checking for insecure HTTP calls in Python'
 
 check_for_secret_disclosure:
-  comment: ''
+  comment: 'Checking for secret disclosure'
 
 check_for_executable_flag:
   comment: 'Checking for executable flag'
