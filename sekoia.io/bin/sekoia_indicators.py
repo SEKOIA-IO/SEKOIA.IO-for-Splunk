@@ -26,6 +26,7 @@ SEKOIAIO_REALM = "sekoiaio_realm"
 MASK = "<nothing to see here>"
 DEFAULT_FEED = "d6092c37-d8d7-45c3-8aff-c4dc26030608"
 BASE_URL = "https://api.sekoia.io"
+APP_BASE_URL = "https://app.sekoia.io"
 LIMIT = 300
 COLLECTION_NAME = "sekoia_iocs_{}"
 SUPPORTED_TYPES = {
@@ -132,22 +133,27 @@ class SEKOIAIndicators(Script):
         proxies = None
 
         if proxy_url:
-            proxies = {"http": proxy_url, "https": proxy_url}
+            proxies = {"https": proxy_url}
+
             if ew:
                 ew.log(
                     ew.DEBUG, f"Configure network proxy access with proxy={proxy_url}"
                 )
+
+            self.validate_url(proxy_url, ew)
 
         url_root = BASE_URL
         if api_root_url:
             url_root = api_root_url
 
         url = urljoin(
-            url_root+"/",
+            url_root + "/",
             "v2/inthreat/collections",
             feed_id,
             "objects?match[type]=indicator&limit={}".format(LIMIT),
         )
+
+        self.validate_url(url, ew)
         paginated_url = url
 
         while True:
@@ -240,7 +246,7 @@ class SEKOIAIndicators(Script):
                 if len(value.strip("'")) <= 1024:
 
                     if not api_root_url:
-                        server_root_url = "https://app.sekoia.io"
+                        server_root_url = APP_BASE_URL
                     else:
                         server_root_url = api_root_url
                         if server_root_url.endswith("/api"):
@@ -459,6 +465,15 @@ class SEKOIAIndicators(Script):
                     "Done fetching indicators of all the SEKOIA.IO inputs, sleeping for 10 minutes.",
                 )
                 time.sleep(600)
+
+    @staticmethod
+    def validate_url(url, ew=None):
+        message = "SEKOIA.IO api url and proxy server should start with HTTPS (if defined). Please check configuration."
+        if not url.startswith("https"):
+            if ew:
+                ew.log(ew.ERROR, message)
+
+            raise ValueError(message)
 
 
 if __name__ == "__main__":
