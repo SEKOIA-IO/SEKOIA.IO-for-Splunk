@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2024-09-02 - 1.3.2
+
+### Fixed
+
+- Validate api url and proxy url to use HTTPS
+
 ## 2024-08-21 - 1.3.1
 
 ### Fixed
