@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2025-07-03 - 1.3.2
+
+### Fixed
+
+- Ignore indicators with incorrect timestamps
+
 ## 2024-08-21 - 1.3.1
 
 ### Fixed
