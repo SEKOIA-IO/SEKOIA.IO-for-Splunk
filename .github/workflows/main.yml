@@ -40,21 +40,21 @@ jobs:
           slim validate sekoia.io/
           slim package sekoia.io/ -o dist
 
-      - uses: splunk/appinspect-cli-action@v1
+      - uses: splunk/appinspect-cli-action@v1.3
         with:
           app_path: 'dist/*.tar.gz'
           result_file: 'dist/appinspect-report.json'
           included_tags: cloud
 
       - name: upload-appinspect-report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: appinspect-report.json
           path: dist/appinspect-report.json
 
       - name: Upload package as an artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: package-splunkbase
           path: dist/*.tar.gz
