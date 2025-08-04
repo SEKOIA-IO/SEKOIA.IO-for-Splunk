@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2024-07-11 - 1.4.0
+
+### Fixed
+
+- Ignore incorrect `valid_until`
+
+### Changed
+
+- Update dependencies
+
 ## 2024-08-21 - 1.3.1
 
 ### Fixed

@@ -257,13 +257,23 @@ class SEKOIAIndicators(Script):
                     }
 
                     if indicator.get("valid_until"):
-                        result["valid_until"] = int(
-                            time.mktime(
-                                datetime.strptime(
-                                    indicator["valid_until"][:19], "%Y-%m-%dT%H:%M:%S"
-                                ).timetuple()
+                        try:
+                            result["valid_until"] = int(
+                                time.mktime(
+                                    datetime.strptime(
+                                        indicator["valid_until"][:19], "%Y-%m-%dT%H:%M:%S"
+                                    ).timetuple()
+                                )
                             )
-                        )
+
+                        except ValueError:
+                            print(
+                                "WARNING Incorrect `valid_until` '{}' in pattern '{}'".format(
+                                    indicator["valid_until"], indicator["pattern"]
+                                ),
+                                file=sys.stderr,
+                            )
+                            continue
 
                     results[SUPPORTED_TYPES[observable_type][path]].append(result)
 
@@ -306,8 +316,12 @@ class SEKOIAIndicators(Script):
                 self.revoke_indicator(kv_objects)
             # Only import IOCs with a Valid Until date set
             elif indicator.get("valid_until"):
+                try:
+                    valid_until = from_rfc3339(indicator["valid_until"])
+                except ValueError:
+                    continue
+
                 # Ignore expired indicators
-                valid_until = from_rfc3339(indicator["valid_until"])
                 if valid_until > now:
                     for ioc_type, dicts in six.iteritems(kv_objects):
                         objects[ioc_type] += dicts
