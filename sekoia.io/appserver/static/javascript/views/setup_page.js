@@ -178,6 +178,9 @@ define(["backbone", "jquery", "splunkjs/splunk"], function (Backbone, jquery, sp
 
                 let { api_key, feed_settings, lookups } = settings;
 
+		// Validate the settings
+		await Setup.validate_settings(feed_settings);
+
                 // Store api-key in secret storage
                 await Setup.setup_api_key(splunk_js_sdk_service, feed_settings['feed_id'], api_key);
 

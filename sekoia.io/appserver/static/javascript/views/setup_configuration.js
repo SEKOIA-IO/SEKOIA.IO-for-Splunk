@@ -22,6 +22,16 @@ function promisify(fn) {
   }
 }
 
+async function validate_settings(feed_settings) {
+
+    if (feed_settings.api_root_url) {
+	const u = new URL(feed_settings.api_root_url);
+	if (u.protocol != 'https:') {
+	    throw 'Only secured urls (https) are supported for api_root_url'
+	}
+    }
+}
+
 async function setup_modular_input(splunk_js_sdk_service, properties) {
     await SplunkHelpers.update_configuration_file(
         splunk_js_sdk_service,
@@ -192,5 +202,6 @@ export {
     get_lookup_settings,
     setup_lookups,
     setup_cleanup,
-    setup_api_key
+    setup_api_key,
+    validate_settings
 };

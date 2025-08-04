@@ -7,6 +7,7 @@ import traceback
 from collections import defaultdict
 from datetime import datetime
 from posixpath import join as urljoin
+from urllib.parse import urlparse
 
 if sys.version_info[0] < 3:
     py_version = "py2"
@@ -395,6 +396,7 @@ class SEKOIAIndicators(Script):
         to check the configuration is valid.
 
         It performs the following checks:
+        - checks the api_root_url starts with https
         - checks it can connects to the feed to retrieve few indicators
         """
 
@@ -402,6 +404,14 @@ class SEKOIAIndicators(Script):
             feed_id = definition.parameters["feed_id"] or DEFAULT_FEED
             api_key = definition.parameters["api_key"]
             api_root_url = definition.parameters.get("api_root_url")
+
+            if api_root_url:
+                # appcheck:
+                # check_for_insecure_http_calls_in_python
+                parsed_url = urlparse(api_root_url)
+                if parsed_url.scheme != 'https':
+                    raise ValueError("Only secured urls (https) are supported for api_root_url")
+
             proxy_url = definition.parameters.get("proxy_url")
             if api_key == MASK:
                 return True
