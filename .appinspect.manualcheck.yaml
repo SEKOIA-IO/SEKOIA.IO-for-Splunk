@@ -64,3 +64,15 @@ check_js_use_in_modular_inputs:
 
 check_js_use_in_scripted_inputs:
   comment: 'Checking JS use in scripted inputs'
+
+check_for_environment_variable_use_in_python:
+  comment: 'Checking for environment variable use in Python'
+
+check_for_file_and_directory_access:
+  comment: 'Checking for file and directory access'
+
+check_python_untrusted_xml_functions:
+  comment: 'Checking for Python untrusted XML functions'
+
+check_for_data_compression_and_archiving:
+  comment: 'Checking for data compression and archiving'
