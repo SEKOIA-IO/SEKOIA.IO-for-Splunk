@@ -34,8 +34,8 @@ jobs:
           pwd
           ls -la
           cd ${GITHUB_WORKSPACE}
-          wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.2.4.tar.gz
-          pip install splunk-packaging-toolkit-1.2.4.tar.gz
+#          wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.2.4.tar.gz
+          pip install "splunk-packaging-toolkit==1.2.4"
           mkdir dist
           slim validate sekoia.io/
           slim package sekoia.io/ -o dist
