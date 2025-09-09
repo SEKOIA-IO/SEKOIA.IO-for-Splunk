@@ -34,13 +34,13 @@ jobs:
           pwd
           ls -la
           cd ${GITHUB_WORKSPACE}
-          wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.0.1.tar.gz
-          pip install splunk-packaging-toolkit-1.0.1.tar.gz
+          wget https://download.splunk.com/misc/packaging-toolkit/splunk-packaging-toolkit-1.2.4.tar.gz
+          pip install splunk-packaging-toolkit-1.2.4.tar.gz
           mkdir dist
           slim validate sekoia.io/
           slim package sekoia.io/ -o dist
 
-      - uses: splunk/appinspect-cli-action@v1.3
+      - uses: splunk/appinspect-cli-action@v2.10
         with:
           app_path: 'dist/*.tar.gz'
           result_file: 'dist/appinspect-report.json'
