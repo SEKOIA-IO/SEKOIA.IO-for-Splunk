@@ -25,7 +25,6 @@ Classifier: Programming Language :: Python :: 3.7
 Classifier: Programming Language :: Python :: Implementation :: CPython
 Classifier: Programming Language :: Python :: Implementation :: PyPy
 Classifier: Topic :: Software Development :: Libraries :: Python Modules
-License-File: LICENSE
 Requires-Dist: packaging
 
 deprecation

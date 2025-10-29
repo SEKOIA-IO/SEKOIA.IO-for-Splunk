@@ -16,3 +16,63 @@ check_for_secret_disclosure:
 
 check_for_executable_flag:
   comment: 'Checking for executable flag'
+
+check_for_addon_builder_version:
+  comment: 'Checking for Add-on Builder version'
+
+check_that_users_does_not_exist:
+  comment: 'Checking that users does not exist'
+
+check_scripted_inputs_cmd_path_pattern:
+  comment: 'Checking scripted inputs cmd path pattern'
+
+check_javascript_sdk_version:
+  comment: 'Checking JavaScript SDK version'
+
+check_all_python_files_are_well_formed:
+  comment: 'Checking all Python files are well formed'
+
+check_for_supported_tls:
+  comment: 'Checking for supported TLS'
+
+check_import_roles_and_grantable_roles_for_builtin_roles:
+  comment: 'Checking import roles and grantable roles for built-in roles'
+
+check_for_custom_python_interpreters:
+  comment: 'Checking for custom Python interpreters'
+
+check_for_python_multimedia_services:
+  comment: 'Checking for Python multimedia services'
+
+check_for_program_frameworks:
+  comment: 'Checking for program frameworks'
+
+check_for_debugging_and_profiling:
+  comment: 'Checking for debugging and profiling'
+
+check_invoking_bundled_node:
+  comment: 'Checking invoking bundled node'
+
+check_for_js_in_saved_searches_action_script:
+  comment: 'Checking for JS in saved searches action script'
+
+check_js_custom_alert_actions:
+  comment: 'Checking JS custom alert actions'
+
+check_js_use_in_modular_inputs:
+  comment: 'Checking JS use in modular inputs'
+
+check_js_use_in_scripted_inputs:
+  comment: 'Checking JS use in scripted inputs'
+
+check_for_environment_variable_use_in_python:
+  comment: 'Checking for environment variable use in Python'
+
+check_for_file_and_directory_access:
+  comment: 'Checking for file and directory access'
+
+check_python_untrusted_xml_functions:
+  comment: 'Checking for Python untrusted XML functions'
+
+check_for_data_compression_and_archiving:
+  comment: 'Checking for data compression and archiving'
