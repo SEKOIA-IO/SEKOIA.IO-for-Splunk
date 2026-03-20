@@ -10,10 +10,14 @@ on:
       - "master"
 
 
+permissions: {}
+
 jobs:
 
   # Package App
   package:
+    permissions:
+      contents: read  # for actions/checkout to fetch code
     name: Package
     runs-on: ubuntu-latest
     steps:
