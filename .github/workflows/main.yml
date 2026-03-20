@@ -37,7 +37,7 @@ jobs:
         run: |
           pwd
           ls -la
-          cd ${GITHUB_WORKSPACE}
+          cd "${GITHUB_WORKSPACE}"
           pip install 'splunk-packaging-toolkit==1.2.4'
           mkdir dist
           slim validate sekoia.io/
