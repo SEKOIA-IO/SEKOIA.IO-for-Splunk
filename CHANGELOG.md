@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2026-04-29 - 1.5.1
+
+### Fixed
+
+- Specify Python version compatibility with `python.required` parameter
+
 ## 2025-09-05 - 1.5.0
 
 ### Fixed
