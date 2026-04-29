@@ -12,3 +12,5 @@ sekoia.io/metadata/local.meta
 .venv-3.10
 dist
 .idea
+
+/.devcontainer/
