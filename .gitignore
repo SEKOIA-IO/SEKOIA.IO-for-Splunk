@@ -1,5 +1,4 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
 *.py[cod]
 *$py.class
 
@@ -7,10 +6,41 @@ __pycache__/
 sekoia.io/local/
 sekoia.io/metadata/local.meta
 
-.venv
-.venv-3.11
-.venv-3.10
-dist
-.idea
+# tox
+.tox/
+.env
 
+# pytest
+.pytest_cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.coverage
+htmlcov/
+*.cover
+coverage.xml
+*.py,cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+venv/
+.venv/
+.venv-3.11/
+.venv-3.10/
+env/
+ENV/
 /.devcontainer/
+
+# pdm
+.pdm-python
+.python-version
