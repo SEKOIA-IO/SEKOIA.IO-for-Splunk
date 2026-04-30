@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## 2026-04-29 - 1.5.1
+## 2026-04-30 - 1.5.1
+
+### Added
+
+- Add CI and tests to validate app import with multiple Python versions
 
 ### Fixed
 
