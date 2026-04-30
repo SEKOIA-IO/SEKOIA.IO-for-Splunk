@@ -33,7 +33,7 @@ coverage.xml
 .DS_Store
 
 # Environment
-venv/
+venv*/
 .venv/
 .venv-3.11/
 .venv-3.10/
