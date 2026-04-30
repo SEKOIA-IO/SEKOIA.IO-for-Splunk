@@ -1,0 +1,6 @@
+# Development dependencies for SEKOIA.IO Splunk App
+# Install with: pip install -r requirements-dev.txt
+
+# Testing
+pytest>=7.0.0,<8.0.0
+pytest-cov>=3.0.0,<4.0.0
