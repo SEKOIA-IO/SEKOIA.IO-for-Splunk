@@ -35,7 +35,7 @@ jobs:
         run: |
           python --version
           pip --version
-          pip list --format=freeze | cut -d= -f1 | xargs -r pip show || true
+          pip list --format=freeze
 
       - name: Run tests
         run: pytest tests/ -v
@@ -70,7 +70,7 @@ jobs:
         run: |
           python --version
           pip --version
-          pip list --format=freeze | cut -d= -f1 | xargs -r pip show || true
+          pip list --format=freeze
 
       - name: Run tests
         env:
