@@ -9,8 +9,8 @@ on:
 jobs:
   # Simulates a standard Python environment where dependencies are installed via pip.
   # Validates that the app works regardless of how dependencies are resolved at install time.
-  test-pip-installed:
-    name: "pip-installed / py${{ matrix.python-version }}"
+  test-pip-installed-dependencies:
+    name: "pip-installed-dependencies / py${{ matrix.python-version }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -31,6 +31,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements-dev.txt
 
+      - name: Print Python and dependency versions
+        run: |
+          python --version
+          pip --version
+          pip list --format=freeze | cut -d= -f1 | xargs -r pip show || true
+
       - name: Run tests
         run: pytest tests/ -v
 
@@ -38,8 +44,8 @@ jobs:
   # Instead, only the packages pre-bundled in sekoia.io/lib/py3/ are available,
   # injected via PYTHONPATH exactly as Splunk resolves imports at runtime.
   # This catches breakage caused by incompatible bundled packages on a given Python version.
-  test-bundled-packages:
-    name: "bundled-packages / py${{ matrix.python-version }}"
+  test-bundled-dependencies:
+    name: "bundled-dependencies / py${{ matrix.python-version }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -60,7 +66,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pytest-cov
 
-      - name: Run tests against bundled packages
+      - name: Print Python and dependency versions
+        run: |
+          python --version
+          pip --version
+          pip list --format=freeze | cut -d= -f1 | xargs -r pip show || true
+
+      - name: Run tests
         env:
           # Point Python to the embedded lib/py3 directory instead of site-packages,
           # so imports resolve exclusively from the pre-bundled packages.
