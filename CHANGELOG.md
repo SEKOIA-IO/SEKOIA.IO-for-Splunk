@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## 2026-05-07 - 1.5.1
+## 2026-05-15 - 1.5.1
 
 ### Added
 
-- Add CI and tests to validate app import with multiple Python versions
+- Add CI and tests to validate the app against multiple Python versions (3.9 to 3.14), using both:
+    - pip-installed dependencies
+    - and the pre-bundled packages embedded in the _sekoia.io/lib/py3/_ folder
+- Add missing bundled Python dependencies to the _sekoia.io/lib/py3/_ folder:
+    - certifi 2026.4.22
+    - charset-normalizer 3.4.7
+    - idna 3.13
+    - requests 2.32.5
+    - urllib3 2.6.3
 
 ### Fixed
 
