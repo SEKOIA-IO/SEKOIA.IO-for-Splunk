@@ -1,0 +1,3 @@
+# Integration tests
+# Splunk app inspection
+splunk-appinspect>=4.2.0,<5.0.0

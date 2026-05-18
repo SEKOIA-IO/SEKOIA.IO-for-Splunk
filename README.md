@@ -47,12 +47,24 @@ Note that in both cases, the proxy must support access to https://api.sekoia.io 
 
 ## Tests
 
-You can run Splunk AppInspect manually to validate the app package content:
+You can run unit tests and Splunk AppInspect checks manually:
+
+### Unit tests
 
 ```bash
 pip install -r requirements-dev.txt
+pytest tests/ -v
+```
+
+The unit test command validates app behavior and imports.
+
+### Integration tests (Splunk tooling)
+
+```bash
+pip install -r requirements-splunk-utils.txt
 splunk-appinspect inspect sekoia.io/
 ```
 
 The `splunk-appinspect inspect sekoia.io/` command analyzes the `sekoia.io/` app directory against Splunk AppInspect checks.
+
 It helps detect packaging, configuration, security, and Splunk compatibility issues before release.
