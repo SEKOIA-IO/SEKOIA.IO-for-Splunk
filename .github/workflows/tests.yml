@@ -78,3 +78,39 @@ jobs:
           # so imports resolve exclusively from the pre-bundled packages.
           PYTHONPATH: sekoia.io/lib/py3
         run: pytest tests/ -v
+
+  # Runs Splunk AppInspect against the packaged app directory to ensure
+  # Splunk compatibility checks pass on all supported Python versions.
+  test-splunk-appinspect:
+    name: "splunk-appinspect / py${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install development requirements (includes splunk-appinspect)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Print Python and dependency versions
+        run: |
+          python --version
+          pip --version
+          pip list --format=freeze
+
+      - name: Run Splunk AppInspect
+        # This command validates the Splunk app content in sekoia.io/
+        # against AppInspect checks (packaging, configuration, security,
+        # and other Splunk app quality requirements).
+        run: splunk-appinspect inspect sekoia.io/

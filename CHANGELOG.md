@@ -11,9 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add CI and tests to validate the app against multiple Python versions (3.9 to 3.14), using both:
+- Add CI tests to validate the app against multiple Python versions (3.9 to 3.14), using both:
     - pip-installed dependencies
     - and the pre-bundled packages embedded in the _sekoia.io/lib/py3/_ folder
+- Add CI tests to run Splunk AppInspect against the packaged app directory, to ensure Splunk compatibility checks pass on all supported Python versions
 - Add missing optional bundled Python dependencies to the _sekoia.io/lib/py3/_ folder:
     - certifi 2026.4.22
     - charset-normalizer 3.4.7
@@ -27,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Specify Python version compatibility with `python.required` parameter
+- Specify Python version compatibility with `python.required: 3.13` parameter in the _sekoia.io/default/inputs.conf_ file, to pass splunk-appinspect tests
 
 ## 2025-09-05 - 1.5.0
 
