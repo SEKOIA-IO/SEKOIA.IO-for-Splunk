@@ -15,16 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - pip-installed dependencies
     - and the pre-bundled packages embedded in the _sekoia.io/lib/py3/_ folder
 - Add CI tests to run Splunk AppInspect against the packaged app directory, to ensure Splunk compatibility checks pass on all supported Python versions
-- Add missing optional bundled Python dependencies to the _sekoia.io/lib/py3/_ folder:
-    - certifi 2026.4.22
-    - charset-normalizer 3.4.7
-    - idna 3.13
-    - requests 2.32.5
-    - urllib3 2.6.3
-    
-    --> These dependencies are not required to be bundled as they are already available to Splunk SOAR (Cloud) apps, but embedding them allows to run robust CI tests on bundled packages
-    
-    --> https://help.splunk.com/en/splunk-soar/soar-cloud/develop-apps/develop-apps/develop-an-app-using-the-splunk-soar-app-wizard/app-structure/frequently-asked-questions
+- Add missing optional bundled Python dependencies to the _sekoia.io/lib/py3/_ folder
 
 ### Fixed
 
