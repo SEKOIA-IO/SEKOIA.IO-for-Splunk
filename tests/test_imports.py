@@ -1,6 +1,7 @@
 """
 Test importing the sekoia_indicators module to ensure it is free of syntax errors and can be loaded properly.
 """
+
 import importlib.util
 import py_compile
 
@@ -13,6 +14,7 @@ def test_sekoia_indicators_importable(sekoia_module):
     # If this fixture was created, imports succeeded
     assert hasattr(sekoia_module, "SEKOIAIndicators")
 
+
 def test_sekoia_indicators_syntax_compiles(script_path):
     """
     Compile the source file to ensure there are no syntax errors.
@@ -21,6 +23,7 @@ def test_sekoia_indicators_syntax_compiles(script_path):
     source_path = script_path
     # py_compile.compile raises an exception if there's a syntax error
     py_compile.compile(script_path, doraise=True)
+
 
 def test_sekoia_indicators_module_spec_loads(script_path):
     """

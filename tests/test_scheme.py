@@ -13,6 +13,7 @@ Splunk uses that XML to know:
 
 The command does not actually fetch data or connect to Splunk, it only verifies that the script loads and returns its input definition
 """
+
 import subprocess
 import sys
 import xml.etree.ElementTree as ET

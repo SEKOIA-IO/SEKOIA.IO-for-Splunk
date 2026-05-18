@@ -143,7 +143,7 @@ class SEKOIAIndicators(Script):
             url_root = api_root_url
 
         url = urljoin(
-            url_root+"/",
+            url_root + "/",
             "v2/inthreat/collections",
             feed_id,
             "objects?match[type]=indicator&limit={}".format(LIMIT),
@@ -261,7 +261,8 @@ class SEKOIAIndicators(Script):
                             result["valid_until"] = int(
                                 time.mktime(
                                     datetime.strptime(
-                                        indicator["valid_until"][:19], "%Y-%m-%dT%H:%M:%S"
+                                        indicator["valid_until"][:19],
+                                        "%Y-%m-%dT%H:%M:%S",
                                     ).timetuple()
                                 )
                             )
@@ -406,7 +407,7 @@ class SEKOIAIndicators(Script):
             if api_key == MASK:
                 return True
 
-            (cursor, indicators) = next(
+            cursor, indicators = next(
                 self.get_indicators(
                     feed_id=feed_id,
                     api_key=api_key,
