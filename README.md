@@ -44,3 +44,27 @@ Without any configuration on the system, the proxy configuration must be entered
 The SEKOIA.IO-for-Splunk application takes into account the global Splunk proxy configuration provided by means of the `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
 
 Note that in both cases, the proxy must support access to https://api.sekoia.io on port 443 for this to work.
+
+## Tests
+
+You can run unit tests and Splunk AppInspect checks manually:
+
+### Unit tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ -v
+```
+
+The unit test command validates app behavior and imports.
+
+### Integration tests (Splunk tooling)
+
+```bash
+pip install -r requirements-splunk-utils.txt
+splunk-appinspect inspect sekoia.io/
+```
+
+The `splunk-appinspect inspect sekoia.io/` command analyzes the `sekoia.io/` app directory against Splunk AppInspect checks.
+
+It helps detect packaging, configuration, security, and Splunk compatibility issues before release.
