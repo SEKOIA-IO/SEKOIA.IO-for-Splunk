@@ -40,7 +40,7 @@ function get_template() {
                     </label>
                     <p class="hint">
                         API Key generated in SEKOIA.IO's User Center that should be used to access the feed content.
-                        This API Key should have at least the "Intelligence Center - Read Only" role.
+                        This API Key should be configured with at least the permissions corresponding to the "Analyst Role".
                     </p>
 
                     <label>
