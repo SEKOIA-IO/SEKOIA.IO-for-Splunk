@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Replace deprecated "Intelligence Center - Read Only" role by new "Analyst Role" in the app setup page template
+- Replace deprecated "Intelligence Center - Read Only" role with new "Analyst Role" in the app setup page template
 
 ## 2026-05-21 - 1.5.1
 
